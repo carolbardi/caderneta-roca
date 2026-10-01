@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/caderneta-roca/sw.js', { scope: '/caderneta-roca/' })})}
