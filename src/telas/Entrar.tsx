@@ -18,8 +18,13 @@ export function Entrar() {
       options: { emailRedirectTo: window.location.origin + import.meta.env.BASE_URL },
     })
     setOcupado(false)
-    if (error) setErro('Não consegui mandar o e-mail. Confere o endereço e tenta de novo.')
-    else setEtapa('codigo')
+    if (!error) return setEtapa('codigo')
+    const msg = error.message.toLowerCase()
+    if (error.status === 429 || msg.includes('rate limit') || msg.includes('security purposes'))
+      setErro('Muitos e-mails em pouco tempo. Espere alguns minutos e tente de novo. Se já tem um código de antes, ele ainda vale.')
+    else if (msg.includes('signup') || msg.includes('sign up'))
+      setErro('Novos cadastros estão desligados no Supabase. Ligue de novo "Allow new users to sign up" para a primeira entrada.')
+    else setErro(`Não consegui mandar o e-mail (${error.message}).`)
   }
 
   async function confirmar(e: FormEvent) {
@@ -54,6 +59,14 @@ export function Entrar() {
           />
           <button className="botao w-full" disabled={ocupado}>
             {ocupado ? 'Enviando…' : 'Receber código de entrada'}
+          </button>
+          <button
+            type="button"
+            className="text-sm text-folha underline disabled:opacity-40"
+            disabled={!email.includes('@')}
+            onClick={() => setEtapa('codigo')}
+          >
+            Já tenho um código
           </button>
         </form>
       ) : (
